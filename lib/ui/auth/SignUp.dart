@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:com.urbaevent/utils/ThemeColor.dart';
 import 'package:com.urbaevent/utils/Utils.dart';
 import 'package:com.urbaevent/widgets/CustomToolbar.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +42,7 @@ class _SignUp extends State<SignUp> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FacebookAuth facebookAuth = FacebookAuth.instance;
   String socialId = "";
   String provider = "";
   File? imageFile;
@@ -68,8 +70,7 @@ class _SignUp extends State<SignUp> {
         email: u.email ?? 'N/A',
         profileImageUrl: u.picture ?? 'N/A',
       );
-      _nameController.text =
-          user!.firstName!.toString() + " " + user!.lastName!.toString();
+      _nameController.text = user!.firstName!.toString() + " " + user!.lastName!.toString();
       _emailController.text = user!.email.toString();
       setState(() {
         socialId = user!.email.toString();
@@ -89,20 +90,15 @@ class _SignUp extends State<SignUp> {
     } else if (!_isValidEmail(_emailController.value.text)) {
       Utils.showToast(Intl.message("msg_enter_email", name: "msg_enter_email"));
       return false;
-    } else if (_passwordController.value.text.length < 5 &&
-        socialId.length == 0) {
+    } else if (_passwordController.value.text.length < 5 && socialId.length == 0) {
       Utils.showToast(Intl.message("msg_pwd_length", name: "msg_pwd_length"));
       return false;
-    } else if (_cnfPasswordController.value.text.isEmpty &&
-        socialId.length == 0) {
-      Utils.showToast(
-          Intl.message("msg_cng_pwd_empty", name: "msg_cng_pwd_empty"));
+    } else if (_cnfPasswordController.value.text.isEmpty && socialId.length == 0) {
+      Utils.showToast(Intl.message("msg_cng_pwd_empty", name: "msg_cng_pwd_empty"));
       return false;
-    } else if (_passwordController.value.text !=
-            _cnfPasswordController.value.text &&
+    } else if (_passwordController.value.text != _cnfPasswordController.value.text &&
         socialId.length == 0) {
-      Utils.showToast(
-          Intl.message("msg_pwd_no_match", name: "msg_pwd_no_match"));
+      Utils.showToast(Intl.message("msg_pwd_no_match", name: "msg_pwd_no_match"));
       return false;
     }
     return true;
@@ -114,8 +110,7 @@ class _SignUp extends State<SignUp> {
 
   Future<User?> _handleSignIn() async {
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount!.authentication;
 
@@ -124,12 +119,27 @@ class _SignUp extends State<SignUp> {
         idToken: googleSignInAuthentication.idToken,
       );
 
-      final UserCredential authResult =
-          await _auth.signInWithCredential(credential);
+      final UserCredential authResult = await _auth.signInWithCredential(credential);
       final User? user = authResult.user;
       return user;
     } catch (error) {
       print(error);
+      return null;
+    }
+  }
+
+  Future<User?> signInWithFacebook() async {
+    try {
+      final LoginResult loginResult = await facebookAuth.login();
+
+      final OAuthCredential facebookAuthCredential =
+          FacebookAuthProvider.credential(loginResult.accessToken!.token);
+
+      final UserCredential authResult = await _auth.signInWithCredential(facebookAuthCredential);
+      final User? user = authResult.user;
+      return user;
+    } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -190,49 +200,37 @@ class _SignUp extends State<SignUp> {
                                   borderRadius: BorderRadius.circular(10.0),
                                   color: Colors.white,
                                 ),
-
                                 child: Padding(
-                                    padding:
-                                        EdgeInsets.fromLTRB(20.0, 20, 20, 0),
+                                    padding: EdgeInsets.fromLTRB(20.0, 20, 20, 0),
                                     child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: [
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: Color.fromRGBO(
-                                                249, 249, 255, 1),
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
+                                            color: Color.fromRGBO(249, 249, 255, 1),
+                                            borderRadius: BorderRadius.circular(30.0),
                                           ),
                                           child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
+                                            borderRadius: BorderRadius.circular(30.0),
                                             child: LinkedInCustomButton(
                                               config: config,
                                               destroySession: true,
-                                              onError: (error) => log(
-                                                  'Error: ${error.message}'),
-                                              onGetAuthToken: (data) => log(
-                                                  'Access token ${data.accessToken!}'),
+                                              onError: (error) => log('Error: ${error.message}'),
+                                              onGetAuthToken: (data) =>
+                                                  log('Access token ${data.accessToken!}'),
                                               onGetUserProfile: setUser,
                                               child: Container(
                                                 height: 52,
                                                 width: 295,
                                                 alignment: Alignment.center,
                                                 decoration: BoxDecoration(
-                                                  color: Color.fromRGBO(
-                                                      249, 249, 255, 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          50.0),
+                                                  color: Color.fromRGBO(249, 249, 255, 1),
+                                                  borderRadius: BorderRadius.circular(50.0),
                                                 ),
                                                 padding: EdgeInsets.all(10.0),
                                                 child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     Image.asset(
                                                       'assets/linkedin.png',
@@ -241,16 +239,12 @@ class _SignUp extends State<SignUp> {
                                                     ),
                                                     SizedBox(width: 10.0),
                                                     Text(
-                                                      Intl.message(
-                                                          "connect_with_linkedin",
-                                                          name:
-                                                              "connect_with_linkedin"),
+                                                      Intl.message("connect_with_linkedin",
+                                                          name: "connect_with_linkedin"),
                                                       style: GoogleFonts.roboto(
                                                           fontSize: 20.0,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: ThemeColor
-                                                              .textPrimary),
+                                                          fontWeight: FontWeight.w400,
+                                                          color: ThemeColor.textPrimary),
                                                     ),
                                                   ],
                                                 ),
@@ -266,16 +260,13 @@ class _SignUp extends State<SignUp> {
                                             User? user = await _handleSignIn();
                                             if (user != null) {
                                               // Successfully signed in with Google
-                                              _nameController.text =
-                                                  user.displayName.toString();
-                                              _emailController.text =
-                                                  user.email.toString();
+                                              _nameController.text = user.displayName.toString();
+                                              _emailController.text = user.email.toString();
                                               setState(() {
                                                 socialId = user.uid.toString();
                                                 provider = "google";
                                               });
-                                              downloadAndSaveImage(
-                                                  user.photoURL.toString());
+                                              downloadAndSaveImage(user.photoURL.toString());
                                               _phoneFocus.requestFocus();
                                             } else {
                                               // Sign-in failed
@@ -287,10 +278,8 @@ class _SignUp extends State<SignUp> {
                                             height: 52,
                                             alignment: Alignment.center,
                                             decoration: BoxDecoration(
-                                              color: Color.fromRGBO(
-                                                  249, 249, 255, 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(30.0),
+                                              color: Color.fromRGBO(249, 249, 255, 1),
+                                              borderRadius: BorderRadius.circular(30.0),
                                             ),
                                             padding: EdgeInsets.all(10.0),
                                             child: Row(
@@ -303,16 +292,63 @@ class _SignUp extends State<SignUp> {
                                                 ),
                                                 SizedBox(width: 10.0),
                                                 Text(
-                                                  Intl.message(
-                                                      "connect_with_google",
-                                                      name:
-                                                          "connect_with_google"),
+                                                  Intl.message("connect_with_google",
+                                                      name: "connect_with_google"),
                                                   style: GoogleFonts.roboto(
                                                       fontSize: 20.0,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: ThemeColor
-                                                          .textPrimary),
+                                                      fontWeight: FontWeight.w400,
+                                                      color: ThemeColor.textPrimary),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            User? user = await signInWithFacebook();
+                                            if (user != null) {
+                                              // Successfully signed in with Google
+                                              _nameController.text = user.displayName.toString();
+                                              _emailController.text = user.email.toString();
+                                              setState(() {
+                                                socialId = user.uid.toString();
+                                                provider = "facebook";
+                                              });
+                                              downloadAndSaveImage(user.photoURL.toString());
+                                              _phoneFocus.requestFocus();
+                                            } else {
+                                              // Sign-in failed
+                                              Utils.showToast("Sign In failed");
+                                            }
+                                            facebookAuth.logOut();
+                                          },
+                                          child: Container(
+                                            height: 52,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: Color.fromRGBO(249, 249, 255, 1),
+                                              borderRadius: BorderRadius.circular(30.0),
+                                            ),
+                                            padding: EdgeInsets.all(10.0),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Image.asset(
+                                                  'assets/meta.png',
+                                                  width: 22.0,
+                                                  height: 22.0,
+                                                ),
+                                                SizedBox(width: 10.0),
+                                                Text(
+                                                  Intl.message("connect_with_meta",
+                                                      name: "connect_with_meta"),
+                                                  style: GoogleFonts.roboto(
+                                                      fontSize: 20.0,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: ThemeColor.textPrimary),
                                                 ),
                                               ],
                                             ),
@@ -321,89 +357,64 @@ class _SignUp extends State<SignUp> {
                                         SizedBox(height: 10),
                                         if (Platform.isIOS)
                                           SignInWithAppleButton(
-                                            text: Intl.message(
-                                                "connect_with_apple",
+                                            text: Intl.message("connect_with_apple",
                                                 name: "connect_with_apple"),
                                             onPressed: () async {
                                               final credential =
-                                                  await SignInWithApple
-                                                      .getAppleIDCredential(
+                                                  await SignInWithApple.getAppleIDCredential(
                                                 scopes: [
-                                                  AppleIDAuthorizationScopes
-                                                      .email,
-                                                  AppleIDAuthorizationScopes
-                                                      .fullName,
+                                                  AppleIDAuthorizationScopes.email,
+                                                  AppleIDAuthorizationScopes.fullName,
                                                 ],
                                               );
 
                                               Preference preference =
-                                                  await Preference
-                                                      .getInstance();
+                                                  await Preference.getInstance();
 
                                               if (credential.email != null) {
-                                                preference.setAppleEmail(
-                                                    credential.email ?? "");
+                                                preference.setAppleEmail(credential.email ?? "");
                                               }
-                                              if (credential.givenName !=
-                                                  null) {
-                                                preference.setAppleName(
-                                                    credential.givenName! +
-                                                        " " +
-                                                        credential.familyName!);
+                                              if (credential.givenName != null) {
+                                                preference.setAppleName(credential.givenName! +
+                                                    " " +
+                                                    credential.familyName!);
                                               }
-                                              if (credential.userIdentifier !=
-                                                  null) {
-                                                preference.setAppleUerId(
-                                                    credential.userIdentifier!);
+                                              if (credential.userIdentifier != null) {
+                                                preference
+                                                    .setAppleUerId(credential.userIdentifier!);
                                               }
 
                                               setState(() {
-                                                _nameController.text =
-                                                    preference.getAppleName();
+                                                _nameController.text = preference.getAppleName();
 
-                                                if (preference
-                                                    .getAppleEmail()
-                                                    .trim()
-                                                    .isEmpty) {
-                                                  _emailController
-                                                      .text = preference
-                                                          .getAppleUserId() +
-                                                      "@apple.com";
+                                                if (preference.getAppleEmail().trim().isEmpty) {
+                                                  _emailController.text =
+                                                      preference.getAppleUserId() + "@apple.com";
                                                 } else {
                                                   _emailController.text =
-                                                      preference
-                                                          .getAppleEmail();
+                                                      preference.getAppleEmail();
                                                 }
 
-                                                socialId =
-                                                    preference.getAppleUserId();
+                                                socialId = preference.getAppleUserId();
                                                 provider = "apple";
                                                 _phoneFocus.requestFocus();
                                               });
 
                                               // This is the endpoint that will convert an authorization code obtained
                                               // via Sign in with Apple into a session in your system
-                                              final signInWithAppleEndpoint =
-                                                  Uri(
+                                              final signInWithAppleEndpoint = Uri(
                                                 scheme: 'https',
                                                 host:
                                                     'flutter-sign-in-with-apple-example.glitch.me',
                                                 path: '/sign_in_with_apple',
-                                                queryParameters: <String,
-                                                    String>{
-                                                  'code': credential
-                                                      .authorizationCode,
-                                                  if (credential.givenName !=
-                                                      null)
-                                                    'firstName':
-                                                        credential.givenName!,
-                                                  if (credential.familyName !=
-                                                      null)
-                                                    'lastName':
-                                                        credential.familyName!,
+                                                queryParameters: <String, String>{
+                                                  'code': credential.authorizationCode,
+                                                  if (credential.givenName != null)
+                                                    'firstName': credential.givenName!,
+                                                  if (credential.familyName != null)
+                                                    'lastName': credential.familyName!,
                                                   'useBundleId':
-                                                      (Platform.isIOS ||
-                                                              Platform.isMacOS)
+                                                      (Platform.isIOS || Platform.isMacOS)
                                                           ? 'true'
                                                           : 'false',
                                                   if (credential.state != null)
@@ -411,8 +422,7 @@ class _SignUp extends State<SignUp> {
                                                 },
                                               );
 
-                                              final session =
-                                                  await http.Client().post(
+                                              final session = await http.Client().post(
                                                 signInWithAppleEndpoint,
                                               );
                                             },
@@ -420,35 +430,28 @@ class _SignUp extends State<SignUp> {
                                         SizedBox(height: 10),
                                         Center(
                                           child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               SizedBox(width: 30),
                                               Expanded(
                                                 child: Divider(
-                                                  color: Color.fromRGBO(
-                                                      132, 130, 130, 1),
+                                                  color: Color.fromRGBO(132, 130, 130, 1),
                                                   thickness: 1.0,
                                                 ),
                                               ),
                                               Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16.0),
+                                                padding: EdgeInsets.symmetric(horizontal: 16.0),
                                                 child: Text(
-                                                  Intl.message("or",
-                                                      name: "or"),
+                                                  Intl.message("or", name: "or"),
                                                   style: GoogleFonts.roboto(
                                                       fontSize: 18.0,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Color.fromRGBO(
-                                                          132, 130, 130, 1)),
+                                                      fontWeight: FontWeight.w400,
+                                                      color: Color.fromRGBO(132, 130, 130, 1)),
                                                 ),
                                               ),
                                               Expanded(
                                                 child: Divider(
-                                                  color: Color.fromRGBO(
-                                                      132, 130, 130, 1),
+                                                  color: Color.fromRGBO(132, 130, 130, 1),
                                                   thickness: 1.0,
                                                 ),
                                               ),
@@ -470,30 +473,22 @@ class _SignUp extends State<SignUp> {
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w400),
                                             controller: _nameController,
-                                            keyboardType:
-                                                TextInputType.emailAddress,
+                                            keyboardType: TextInputType.emailAddress,
                                             decoration: InputDecoration(
-                                              labelText: Intl.message("name",
-                                                  name: "name"),
+                                              labelText: Intl.message("name", name: "name"),
                                               suffixIconConstraints:
-                                                  BoxConstraints.tightFor(
-                                                      width: 34, height: 34),
+                                                  BoxConstraints.tightFor(width: 34, height: 34),
                                               suffixIcon: Image.asset(
                                                 'assets/asterisk.png',
                                               ),
                                               border: OutlineInputBorder(
                                                 borderSide: BorderSide.none,
-                                                borderRadius:
-                                                    BorderRadius.circular(25.0),
+                                                borderRadius: BorderRadius.circular(25.0),
                                               ),
-                                              fillColor: Color.fromRGBO(
-                                                  249, 249, 255, 1),
+                                              fillColor: Color.fromRGBO(249, 249, 255, 1),
                                               filled: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                              floatingLabelBehavior:
-                                                  FloatingLabelBehavior.never,
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                                              floatingLabelBehavior: FloatingLabelBehavior.never,
                                             ),
                                           ),
                                         ),
@@ -506,22 +501,18 @@ class _SignUp extends State<SignUp> {
                                               _phoneFocus.requestFocus();
                                             },
                                             focusNode: _emailFocus,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
+                                            textAlignVertical: TextAlignVertical.center,
                                             style: GoogleFonts.roboto(
                                                 color: ThemeColor.textPrimary,
                                                 fontStyle: FontStyle.normal,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w400),
                                             controller: _emailController,
-                                            keyboardType:
-                                                TextInputType.emailAddress,
+                                            keyboardType: TextInputType.emailAddress,
                                             decoration: InputDecoration(
-                                              labelText: Intl.message("email",
-                                                  name: "email"),
+                                              labelText: Intl.message("email", name: "email"),
                                               suffixIconConstraints:
-                                                  BoxConstraints.tightFor(
-                                                      width: 34, height: 34),
+                                                  BoxConstraints.tightFor(width: 34, height: 34),
                                               suffixIcon: Image.asset(
                                                 'assets/asterisk.png',
                                                 width: 7,
@@ -529,17 +520,12 @@ class _SignUp extends State<SignUp> {
                                               ),
                                               border: OutlineInputBorder(
                                                 borderSide: BorderSide.none,
-                                                borderRadius:
-                                                    BorderRadius.circular(25.0),
+                                                borderRadius: BorderRadius.circular(25.0),
                                               ),
-                                              fillColor: Color.fromRGBO(
-                                                  249, 249, 255, 1),
+                                              fillColor: Color.fromRGBO(249, 249, 255, 1),
                                               filled: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                              floatingLabelBehavior:
-                                                  FloatingLabelBehavior.never,
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                                              floatingLabelBehavior: FloatingLabelBehavior.never,
                                             ),
                                           ),
                                         ),
@@ -559,22 +545,16 @@ class _SignUp extends State<SignUp> {
                                             controller: _phoneController,
                                             keyboardType: TextInputType.phone,
                                             decoration: InputDecoration(
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                              labelText: Intl.message(
-                                                  "phone_number",
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                                              labelText: Intl.message("phone_number",
                                                   name: "phone_number"),
                                               border: OutlineInputBorder(
                                                 borderSide: BorderSide.none,
-                                                borderRadius:
-                                                    BorderRadius.circular(25.0),
+                                                borderRadius: BorderRadius.circular(25.0),
                                               ),
-                                              fillColor: Color.fromRGBO(
-                                                  249, 249, 255, 1),
+                                              fillColor: Color.fromRGBO(249, 249, 255, 1),
                                               filled: true,
-                                              floatingLabelBehavior:
-                                                  FloatingLabelBehavior.never,
+                                              floatingLabelBehavior: FloatingLabelBehavior.never,
                                             ),
                                           ),
                                         ),
@@ -587,8 +567,7 @@ class _SignUp extends State<SignUp> {
                                               onEditingComplete: () {
                                                 _cnfFocus.requestFocus();
                                               },
-                                              textAlignVertical:
-                                                  TextAlignVertical.center,
+                                              textAlignVertical: TextAlignVertical.center,
                                               style: GoogleFonts.roboto(
                                                   color: ThemeColor.textPrimary,
                                                   fontStyle: FontStyle.normal,
@@ -597,43 +576,33 @@ class _SignUp extends State<SignUp> {
                                               controller: _passwordController,
                                               obscureText: !_isPasswordVisible,
                                               decoration: InputDecoration(
-                                                labelText: Intl.message(
-                                                    "password",
-                                                    name: "password"),
+                                                labelText:
+                                                    Intl.message("password", name: "password"),
                                                 border: OutlineInputBorder(
                                                   borderSide: BorderSide.none,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          25.0),
+                                                  borderRadius: BorderRadius.circular(25.0),
                                                 ),
                                                 filled: true,
-                                                fillColor: Color.fromRGBO(
-                                                    249, 249, 255, 1),
-                                                floatingLabelBehavior:
-                                                    FloatingLabelBehavior.never,
+                                                fillColor: Color.fromRGBO(249, 249, 255, 1),
+                                                floatingLabelBehavior: FloatingLabelBehavior.never,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 20),
+                                                    EdgeInsets.symmetric(horizontal: 20),
                                                 suffixIcon: IconButton(
                                                   icon: Icon(
                                                     _isPasswordVisible
-                                                        ? Icons
-                                                            .visibility_off_outlined
-                                                        : Icons
-                                                            .visibility_outlined,
+                                                        ? Icons.visibility_off_outlined
+                                                        : Icons.visibility_outlined,
                                                   ),
                                                   onPressed: () {
                                                     setState(() {
-                                                      _isPasswordVisible =
-                                                          !_isPasswordVisible;
+                                                      _isPasswordVisible = !_isPasswordVisible;
                                                     });
                                                   },
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        if (socialId.length == 0)
-                                          SizedBox(height: 16.0),
+                                        if (socialId.length == 0) SizedBox(height: 16.0),
                                         if (socialId.length == 0)
                                           SizedBox(
                                             height: 52,
@@ -644,19 +613,14 @@ class _SignUp extends State<SignUp> {
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            SignUpStep2(
-                                                                _nameController
-                                                                    .value.text,
-                                                                _phoneController
-                                                                    .value.text,
-                                                                _emailController
-                                                                    .value.text,
-                                                                _passwordController
-                                                                    .value.text,
-                                                                socialId,
-                                                                provider,
-                                                                imageFile)),
+                                                        builder: (context) => SignUpStep2(
+                                                            _nameController.value.text,
+                                                            _phoneController.value.text,
+                                                            _emailController.value.text,
+                                                            _passwordController.value.text,
+                                                            socialId,
+                                                            provider,
+                                                            imageFile)),
                                                   );
                                                 }
                                               },
@@ -665,39 +629,29 @@ class _SignUp extends State<SignUp> {
                                                   fontStyle: FontStyle.normal,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w400),
-                                              controller:
-                                                  _cnfPasswordController,
+                                              controller: _cnfPasswordController,
                                               obscureText: !_isPasswordVisible,
                                               decoration: InputDecoration(
-                                                labelText: Intl.message(
-                                                    "cnf_password",
+                                                labelText: Intl.message("cnf_password",
                                                     name: "cnf_password"),
                                                 border: OutlineInputBorder(
                                                   borderSide: BorderSide.none,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          25.0),
+                                                  borderRadius: BorderRadius.circular(25.0),
                                                 ),
                                                 filled: true,
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 20),
-                                                fillColor: Color.fromRGBO(
-                                                    249, 249, 255, 1),
-                                                floatingLabelBehavior:
-                                                    FloatingLabelBehavior.never,
+                                                    EdgeInsets.symmetric(horizontal: 20),
+                                                fillColor: Color.fromRGBO(249, 249, 255, 1),
+                                                floatingLabelBehavior: FloatingLabelBehavior.never,
                                                 suffixIcon: IconButton(
                                                   icon: Icon(
                                                     _isPasswordVisible
-                                                        ? Icons
-                                                            .visibility_off_outlined
-                                                        : Icons
-                                                            .visibility_outlined,
+                                                        ? Icons.visibility_off_outlined
+                                                        : Icons.visibility_outlined,
                                                   ),
                                                   onPressed: () {
                                                     setState(() {
-                                                      _isPasswordVisible =
-                                                          !_isPasswordVisible;
+                                                      _isPasswordVisible = !_isPasswordVisible;
                                                     });
                                                   },
                                                 ),
@@ -709,14 +663,11 @@ class _SignUp extends State<SignUp> {
                                             child: TextButton(
                                                 style: TextButton.styleFrom(
                                                   fixedSize: Size(290, 50),
-                                                  backgroundColor:
-                                                      Color.fromRGBO(
-                                                          69, 152, 209, 1),
+                                                  backgroundColor: Color.fromRGBO(69, 152, 209, 1),
                                                   // Set the background color to black
                                                   shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25.0), // Set the border radius
+                                                    borderRadius: BorderRadius.circular(
+                                                        25.0), // Set the border radius
                                                   ),
                                                 ),
                                                 onPressed: () {
@@ -724,64 +675,42 @@ class _SignUp extends State<SignUp> {
                                                     Navigator.push(
                                                       context,
                                                       PageRouteBuilder(
-                                                        pageBuilder: (context,
-                                                                animation,
+                                                        pageBuilder: (context, animation,
                                                                 secondaryAnimation) =>
                                                             SignUpStep2(
-                                                                _nameController
-                                                                    .value.text,
-                                                                _phoneController
-                                                                    .value.text,
-                                                                _emailController
-                                                                    .value.text,
-                                                                _passwordController
-                                                                    .value.text,
+                                                                _nameController.value.text,
+                                                                _phoneController.value.text,
+                                                                _emailController.value.text,
+                                                                _passwordController.value.text,
                                                                 socialId,
                                                                 provider,
                                                                 imageFile),
-                                                        transitionsBuilder:
-                                                            (context,
-                                                                animation,
-                                                                secondaryAnimation,
-                                                                child) {
-                                                          const begin = Offset(
-                                                              1.0,
-                                                              0.0); // Slide from right
-                                                          const end =
-                                                              Offset.zero;
-                                                          const curve =
-                                                              Curves.easeInOut;
-                                                          var tween = Tween(
-                                                                  begin: begin,
-                                                                  end: end)
-                                                              .chain(CurveTween(
-                                                                  curve:
-                                                                      curve));
+                                                        transitionsBuilder: (context, animation,
+                                                            secondaryAnimation, child) {
+                                                          const begin =
+                                                              Offset(1.0, 0.0); // Slide from right
+                                                          const end = Offset.zero;
+                                                          const curve = Curves.easeInOut;
+                                                          var tween = Tween(begin: begin, end: end)
+                                                              .chain(CurveTween(curve: curve));
                                                           var offsetAnimation =
-                                                              animation
-                                                                  .drive(tween);
+                                                              animation.drive(tween);
                                                           return SlideTransition(
-                                                              position:
-                                                                  offsetAnimation,
+                                                              position: offsetAnimation,
                                                               child: child);
                                                         },
                                                       ),
                                                     );
                                                   }
                                                 },
-                                                child: Text(
-                                                    Intl.message("next",
-                                                        name: "next"),
+                                                child: Text(Intl.message("next", name: "next"),
                                                     style: GoogleFonts.roboto(
                                                         color: Colors.white,
                                                         fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.w500)))),
+                                                        fontWeight: FontWeight.w500)))),
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             Text(
                                                 Intl.message("you_have_account",
@@ -790,55 +719,38 @@ class _SignUp extends State<SignUp> {
                                                     color: Colors.black,
                                                     fontStyle: FontStyle.normal,
                                                     fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w500)),
+                                                    fontWeight: FontWeight.w500)),
                                             TextButton(
                                                 onPressed: () async {
                                                   Navigator.push(
                                                     context,
                                                     PageRouteBuilder(
-                                                      pageBuilder: (context,
-                                                              animation,
+                                                      pageBuilder: (context, animation,
                                                               secondaryAnimation) =>
                                                           SignIn(),
-                                                      transitionsBuilder:
-                                                          (context,
-                                                              animation,
-                                                              secondaryAnimation,
-                                                              child) {
-                                                        const begin = Offset(
-                                                            1.0,
-                                                            0.0); // Slide from right
+                                                      transitionsBuilder: (context, animation,
+                                                          secondaryAnimation, child) {
+                                                        const begin =
+                                                            Offset(1.0, 0.0); // Slide from right
                                                         const end = Offset.zero;
-                                                        const curve =
-                                                            Curves.easeInOut;
-                                                        var tween = Tween(
-                                                                begin: begin,
-                                                                end: end)
-                                                            .chain(CurveTween(
-                                                                curve: curve));
+                                                        const curve = Curves.easeInOut;
+                                                        var tween = Tween(begin: begin, end: end)
+                                                            .chain(CurveTween(curve: curve));
                                                         var offsetAnimation =
-                                                            animation
-                                                                .drive(tween);
+                                                            animation.drive(tween);
                                                         return SlideTransition(
-                                                            position:
-                                                                offsetAnimation,
+                                                            position: offsetAnimation,
                                                             child: child);
                                                       },
                                                     ),
                                                   );
                                                 },
-                                                child: Text(
-                                                    Intl.message("login_",
-                                                        name: "login_"),
+                                                child: Text(Intl.message("login_", name: "login_"),
                                                     style: GoogleFonts.roboto(
-                                                        color: Color.fromRGBO(
-                                                            235, 154, 68, 1),
-                                                        fontStyle:
-                                                            FontStyle.normal,
+                                                        color: Color.fromRGBO(235, 154, 68, 1),
+                                                        fontStyle: FontStyle.normal,
                                                         fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w500))),
+                                                        fontWeight: FontWeight.w500))),
                                           ],
                                         ),
                                       ],
@@ -850,8 +762,7 @@ class _SignUp extends State<SignUp> {
               ),
             ],
           ),
-          CustomToolbar(Intl.message("sign_up", name: "sign_up"),
-              handleCallback, -1, false)
+          CustomToolbar(Intl.message("sign_up", name: "sign_up"), handleCallback, -1, false)
         ]),
       ),
     );

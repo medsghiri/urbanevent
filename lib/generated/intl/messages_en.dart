@@ -59,6 +59,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Continue with Google"),
         "connect_with_linkedin":
             MessageLookupByLibrary.simpleMessage("Continue with Linkedin"),
+        "connect_with_meta":
+            MessageLookupByLibrary.simpleMessage("Continue with Facebook"),
         "contact_added_successfully":
             MessageLookupByLibrary.simpleMessage("Contact added successfully"),
         "contact_details":

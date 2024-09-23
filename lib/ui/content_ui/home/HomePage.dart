@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:com.urbaevent/main.dart';
 import 'package:com.urbaevent/model/ResponseAuthRole.dart';
 import 'package:com.urbaevent/model/ResponseNotifications.dart';
+import 'package:com.urbaevent/ui/content_ui/event/EventDetails.dart';
 import 'package:com.urbaevent/utils/QrScannerOverlayShape.dart';
+import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:com.urbaevent/adapter_view/CurrentEvents.dart';
@@ -25,7 +28,6 @@ import 'package:com.urbaevent/model/events/ResponseMyEvents.dart';
 import 'package:com.urbaevent/ui/auth/SignIn.dart';
 import 'package:com.urbaevent/ui/auth/SignUp.dart';
 import 'package:com.urbaevent/ui/content_ui/home/sub_views/EBadgeDetails.dart';
-import 'package:com.urbaevent/ui/content_ui/Event/EventDetails.dart';
 import 'package:com.urbaevent/ui/content_ui/home/NotificationList.dart';
 import 'package:com.urbaevent/ui/content_ui/home/sub_views/Profile.dart';
 import 'package:com.urbaevent/ui/content_ui/home/sub_views/ProfileInformation.dart';
@@ -121,13 +123,11 @@ class _HomePage extends State<HomePage> {
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) => SignIn(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0); // Slide from right
                 const end = Offset.zero;
                 const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                 var offsetAnimation = animation.drive(tween);
                 return SlideTransition(position: offsetAnimation, child: child);
               },
@@ -157,10 +157,8 @@ class _HomePage extends State<HomePage> {
       type = responseEvents.data[val].type ?? "visitor";
       if (userResponseEvents != null && getEventsInit && isLoggedIn) {
         for (int j = 0; j < userResponseEvents!.data.length; j++) {
-          if (responseEvents.data[val].id ==
-              userResponseEvents!.data[j].event.id) {
-            responseEvents.data[val].registrationType =
-                userResponseEvents!.data[j].type;
+          if (responseEvents.data[val].id == userResponseEvents!.data[j].event.id) {
+            responseEvents.data[val].registrationType = userResponseEvents!.data[j].type;
             Const.registrationId = userResponseEvents!.data[j].id;
             myEvent = true;
             if (userResponseEvents!.data[j].confirmed == null) {
@@ -188,8 +186,7 @@ class _HomePage extends State<HomePage> {
             const begin = Offset(1.0, 0.0); // Slide from right
             const end = Offset.zero;
             const curve = Curves.easeInOut;
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
             return SlideTransition(position: offsetAnimation, child: child);
           },
@@ -215,19 +212,16 @@ class _HomePage extends State<HomePage> {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  EventDetails(
-                      data: responseEvents.data[i],
-                      isRegisteredForEvent: true,
-                      confirmed: confirmed,
-                      type: type),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
+              pageBuilder: (context, animation, secondaryAnimation) => EventDetails(
+                  data: responseEvents.data[i],
+                  isRegisteredForEvent: true,
+                  confirmed: confirmed,
+                  type: type),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0); // Slide from right
                 const end = Offset.zero;
                 const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                 var offsetAnimation = animation.drive(tween);
                 return SlideTransition(position: offsetAnimation, child: child);
               },
@@ -256,24 +250,21 @@ class _HomePage extends State<HomePage> {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  ProfileInformation(
-                      title: "",
-                      isMine: true,
-                      avatar: stringPicUrl,
-                      name: _responseUser!.name,
-                      company: _responseUser!.company,
-                      businessIndustry: _responseUser!.businessSector,
-                      email: _responseUser!.email,
-                      phoneNumber: _responseUser!.phone,
-                      isUser: true),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
+              pageBuilder: (context, animation, secondaryAnimation) => ProfileInformation(
+                  title: "",
+                  isMine: true,
+                  avatar: stringPicUrl,
+                  name: _responseUser!.name,
+                  company: _responseUser!.company,
+                  businessIndustry: _responseUser!.businessSector,
+                  email: _responseUser!.email,
+                  phoneNumber: _responseUser!.phone,
+                  isUser: true),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0); // Slide from right
                 const end = Offset.zero;
                 const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                 var offsetAnimation = animation.drive(tween);
                 return SlideTransition(position: offsetAnimation, child: child);
               },
@@ -349,8 +340,7 @@ class _HomePage extends State<HomePage> {
       } else {
         // Otherwise, filter the items based on the query
         filteredEvents = responseEvents.data
-            .where(
-                (item) => item.name.toLowerCase().contains(query.toLowerCase()))
+            .where((item) => item.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
       }
     });
@@ -672,10 +662,8 @@ class _HomePage extends State<HomePage> {
     setState(() {
       loader = true;
     });
-    final url = Uri.parse(Urls.baseURL +
-        Urls.userEventList +
-        userId.toString() +
-        Urls.userEventListFilter);
+    final url =
+        Uri.parse(Urls.baseURL + Urls.userEventList + userId.toString() + Urls.userEventListFilter);
     print('URL' + url.toString());
     final response = await http.get(
       url,
@@ -736,8 +724,8 @@ class _HomePage extends State<HomePage> {
         print('Response add contact' + response.body);
         setState(() {
           responseScanContact = ResponseScanContact.fromJson(parsedJson);
-          Utils.showToast(Intl.message("contact_added_successfully",
-              name: "contact_added_successfully"));
+          Utils.showToast(
+              Intl.message("contact_added_successfully", name: "contact_added_successfully"));
           uiMode = Const.myContactsUI;
           getContactList();
         });
@@ -799,25 +787,21 @@ class _HomePage extends State<HomePage> {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  ProfileInformation(
-                      title: "",
-                      isMine: false,
-                      avatar: stringPicUrl,
-                      name: responseContactDetails!.name ?? " ",
-                      company: responseContactDetails!.company ?? " ",
-                      businessIndustry:
-                          responseContactDetails!.businessSector ?? " ",
-                      email: responseContactDetails!.email ?? " ",
-                      phoneNumber: responseContactDetails!.phone ?? " ",
-                      isUser: true),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
+              pageBuilder: (context, animation, secondaryAnimation) => ProfileInformation(
+                  title: "",
+                  isMine: false,
+                  avatar: stringPicUrl,
+                  name: responseContactDetails!.name ?? " ",
+                  company: responseContactDetails!.company ?? " ",
+                  businessIndustry: responseContactDetails!.businessSector ?? " ",
+                  email: responseContactDetails!.email ?? " ",
+                  phoneNumber: responseContactDetails!.phone ?? " ",
+                  isUser: true),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0); // Slide from right
                 const end = Offset.zero;
                 const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                 var offsetAnimation = animation.drive(tween);
                 return SlideTransition(position: offsetAnimation, child: child);
               },
@@ -861,8 +845,7 @@ class _HomePage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _pageVisibilityObserver =
-        PageVisibilityObserver(_handlePageVisibilityChange);
+    _pageVisibilityObserver = PageVisibilityObserver(_handlePageVisibilityChange);
     WidgetsBinding.instance.addObserver(_pageVisibilityObserver);
     getUIStates();
     getEventList();
@@ -935,7 +918,6 @@ class _HomePage extends State<HomePage> {
       debugShowCheckedModeBanner: false,
       home: _buildHomeContent(),
     );
-
   }
 
   Widget _buildHomeContent() {
@@ -963,8 +945,7 @@ class _HomePage extends State<HomePage> {
             child: Stack(
               children: [
                 Container(color: ThemeColor.bgColor),
-                if (uiMode == Const.homeUI || uiMode == Const.searchEventUI)
-                  HalfImageVisible(),
+                if (uiMode == Const.homeUI || uiMode == Const.searchEventUI) HalfImageVisible(),
                 Column(
                   children: [
                     //Toolbar
@@ -1030,8 +1011,7 @@ class _HomePage extends State<HomePage> {
                                     ),
                                   if (showSearchView)
                                     LayoutBuilder(builder:
-                                        (BuildContext context,
-                                            BoxConstraints constraints) {
+                                        (BuildContext context, BoxConstraints constraints) {
                                       int widthDifference = 0;
 
                                       if (isLoggedIn) {
@@ -1042,9 +1022,7 @@ class _HomePage extends State<HomePage> {
 
                                       return Container(
                                         height: 40,
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                widthDifference,
+                                        width: MediaQuery.of(context).size.width - widthDifference,
                                         decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius: BorderRadius.all(
@@ -1053,9 +1031,7 @@ class _HomePage extends State<HomePage> {
                                         child: Stack(
                                           children: [
                                             Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 IconButton(
                                                   iconSize: 20,
@@ -1070,30 +1046,20 @@ class _HomePage extends State<HomePage> {
                                                 Expanded(
                                                   child: Center(
                                                     child: TextField(
-                                                      controller:
-                                                          textController,
+                                                      controller: textController,
                                                       onChanged: filterItems,
-                                                      decoration:
-                                                          InputDecoration(
-                                                        hintText: Intl.message(
-                                                            "search",
-                                                            name: "search"),
+                                                      decoration: InputDecoration(
+                                                        hintText:
+                                                            Intl.message("search", name: "search"),
                                                         hintStyle: TextStyle(
                                                             color:
-                                                                Color.fromRGBO(
-                                                                    132,
-                                                                    130,
-                                                                    130,
-                                                                    1)),
-                                                        border:
-                                                            InputBorder.none,
+                                                                Color.fromRGBO(132, 130, 130, 1)),
+                                                        border: InputBorder.none,
                                                       ),
                                                       style: GoogleFonts.roboto(
                                                           fontSize: 18.0,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: Color.fromRGBO(
-                                                              0, 0, 0, 1.0)),
+                                                          fontWeight: FontWeight.w400,
+                                                          color: Color.fromRGBO(0, 0, 0, 1.0)),
                                                     ),
                                                   ),
                                                 ),
@@ -1151,23 +1117,18 @@ class _HomePage extends State<HomePage> {
                                                   height: 18.0,
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color:
-                                                        ThemeColor.colorAccent,
+                                                    color: ThemeColor.colorAccent,
                                                   ),
                                                   child: Center(
                                                     child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              4.0),
+                                                      padding: const EdgeInsets.all(4.0),
                                                       child: Text(
-                                                        Utils.notificationCount
-                                                            .toString(),
+                                                        Utils.notificationCount.toString(),
                                                         // Text inside the badge
                                                         style: TextStyle(
                                                           fontSize: 10,
                                                           color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                          fontWeight: FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -1182,29 +1143,20 @@ class _HomePage extends State<HomePage> {
                                             Navigator.push(
                                               context,
                                               PageRouteBuilder(
-                                                pageBuilder: (context,
-                                                        animation,
-                                                        secondaryAnimation) =>
-                                                    NotificationList(),
-                                                transitionsBuilder: (context,
-                                                    animation,
-                                                    secondaryAnimation,
-                                                    child) {
-                                                  const begin = Offset(1.0,
-                                                      0.0); // Slide from right
+                                                pageBuilder:
+                                                    (context, animation, secondaryAnimation) =>
+                                                        NotificationList(),
+                                                transitionsBuilder: (context, animation,
+                                                    secondaryAnimation, child) {
+                                                  const begin =
+                                                      Offset(1.0, 0.0); // Slide from right
                                                   const end = Offset.zero;
-                                                  const curve =
-                                                      Curves.easeInOut;
-                                                  var tween = Tween(
-                                                          begin: begin,
-                                                          end: end)
-                                                      .chain(CurveTween(
-                                                          curve: curve));
-                                                  var offsetAnimation =
-                                                      animation.drive(tween);
+                                                  const curve = Curves.easeInOut;
+                                                  var tween = Tween(begin: begin, end: end)
+                                                      .chain(CurveTween(curve: curve));
+                                                  var offsetAnimation = animation.drive(tween);
                                                   return SlideTransition(
-                                                      position: offsetAnimation,
-                                                      child: child);
+                                                      position: offsetAnimation, child: child);
                                                 },
                                               ),
                                             );
@@ -1225,19 +1177,16 @@ class _HomePage extends State<HomePage> {
                         height: 20,
                       ),
                     if (uiMode == Const.myContactsUI)
-                      CustomToolbar(
-                          Intl.message("my_contacts", name: "my_contacts"),
-                          onBackCallBack,
-                          Utils.notificationCount,
-                          false),
+                      CustomToolbar(Intl.message("my_contacts", name: "my_contacts"),
+                          onBackCallBack, Utils.notificationCount, false),
                     if (uiMode == Const.scanUI)
                       Container(
                         alignment: Alignment.center,
                         height: 130,
                         child: Center(
                           child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 30.0, right: 30, bottom: 20, top: 40),
+                            padding:
+                                const EdgeInsets.only(left: 30.0, right: 30, bottom: 20, top: 40),
                             child: Text(
                               Intl.message("header_scan", name: "header_scan"),
                               textAlign: TextAlign.center,
@@ -1251,25 +1200,17 @@ class _HomePage extends State<HomePage> {
                         ),
                       ),
                     if (uiMode == Const.eBadgesUI)
-                      CustomToolbar(Intl.message("ebadges", name: "ebadges"),
-                          onBackCallBack, Utils.notificationCount, false),
+                      CustomToolbar(Intl.message("ebadges", name: "ebadges"), onBackCallBack,
+                          Utils.notificationCount, false),
                     if (uiMode == Const.profileUI)
-                      CustomToolbar(Intl.message("profile", name: "profile"),
-                          onBackCallBack, Utils.notificationCount, false),
+                      CustomToolbar(Intl.message("profile", name: "profile"), onBackCallBack,
+                          Utils.notificationCount, false),
                     if (uiMode == Const.eBadgeDetailsUI)
-                      CustomToolbar(
-                          Intl.message("ebadge_details",
-                              name: "ebadge_details"),
-                          onBackCallBack,
-                          Utils.notificationCount,
-                          false),
+                      CustomToolbar(Intl.message("ebadge_details", name: "ebadge_details"),
+                          onBackCallBack, Utils.notificationCount, false),
                     if (uiMode == Const.contactDetailsUI)
-                      CustomToolbar(
-                          Intl.message("contact_details",
-                              name: "contact_details"),
-                          onBackCallBack,
-                          Utils.notificationCount,
-                          false),
+                      CustomToolbar(Intl.message("contact_details", name: "contact_details"),
+                          onBackCallBack, Utils.notificationCount, false),
 
                     // Middle Section
                     if (uiMode == Const.homeUI)
@@ -1283,16 +1224,14 @@ class _HomePage extends State<HomePage> {
                                 if (getEventsInit)
                                   Container(
                                     height: 216,
-                                    child: CurrentEvents(responseEvents.data[0],
-                                        0, handleEventDetailsCallback),
+                                    child: CurrentEvents(
+                                        responseEvents.data[0], 0, handleEventDetailsCallback),
                                   ),
                                 Container(
-                                  padding: EdgeInsets.only(
-                                      left: 20, right: 20, bottom: 20),
+                                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                      Intl.message("upcomingEvents",
-                                          name: "upcomingEvents"),
+                                      Intl.message("upcomingEvents", name: "upcomingEvents"),
                                       style: GoogleFonts.roboto(
                                           color: Color.fromRGBO(51, 51, 51, 1),
                                           fontStyle: FontStyle.normal,
@@ -1306,9 +1245,7 @@ class _HomePage extends State<HomePage> {
                                       scrollDirection: Axis.horizontal,
                                       itemCount: responseEvents.data.length,
                                       itemBuilder: (context, index) {
-                                        return UpcomingEvents(
-                                            responseEvents.data[index],
-                                            index,
+                                        return UpcomingEvents(responseEvents.data[index], index,
                                             handleEventDetailsCallback);
                                       },
                                       // reverse: true,
@@ -1316,12 +1253,9 @@ class _HomePage extends State<HomePage> {
                                     ),
                                   ),
                                 Container(
-                                  padding: EdgeInsets.only(
-                                      left: 20, right: 20, top: 20),
+                                  padding: EdgeInsets.only(left: 20, right: 20, top: 20),
                                   alignment: Alignment.centerLeft,
-                                  child: Text(
-                                      Intl.message("myEvents",
-                                          name: "myEvents"),
+                                  child: Text(Intl.message("myEvents", name: "myEvents"),
                                       style: GoogleFonts.roboto(
                                           color: Color.fromRGBO(51, 51, 51, 1),
                                           fontStyle: FontStyle.normal,
@@ -1331,8 +1265,7 @@ class _HomePage extends State<HomePage> {
                                 if (!isLoggedIn && isInit)
                                   Center(
                                     child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         SizedBox(
                                           height: 30,
@@ -1341,128 +1274,96 @@ class _HomePage extends State<HomePage> {
                                             Intl.message("accessEventMessage",
                                                 name: "accessEventMessage"),
                                             style: GoogleFonts.roboto(
-                                                color: Color.fromRGBO(
-                                                    51, 51, 51, 1),
+                                                color: Color.fromRGBO(51, 51, 51, 1),
                                                 fontStyle: FontStyle.normal,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600)),
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text(
-                                                Intl.message(
-                                                    "please",
-                                                    name: "please"),
+                                            Text(Intl.message("please", name: "please"),
                                                 style: GoogleFonts.roboto(
-                                                    color: Color.fromRGBO(
-                                                        51, 51, 51, 1),
+                                                    color: Color.fromRGBO(51, 51, 51, 1),
                                                     fontStyle: FontStyle.normal,
                                                     fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
+                                                    fontWeight: FontWeight.w600)),
                                             TextButton(
                                                 onPressed: () {
                                                   Navigator.push(
                                                     context,
                                                     PageRouteBuilder(
-                                                      pageBuilder: (context,
-                                                              animation,
+                                                      pageBuilder: (context, animation,
                                                               secondaryAnimation) =>
                                                           SignUp(),
-                                                      transitionsBuilder:
-                                                          (context,
-                                                              animation,
-                                                              secondaryAnimation,
-                                                              child) {
-                                                        const begin = Offset(
-                                                            1.0,
-                                                            0.0); // Slide from right
+                                                      transitionsBuilder: (context, animation,
+                                                          secondaryAnimation, child) {
+                                                        const begin =
+                                                            Offset(1.0, 0.0); // Slide from right
                                                         const end = Offset.zero;
-                                                        const curve =
-                                                            Curves.easeInOut;
-                                                        var tween = Tween(
-                                                                begin: begin,
-                                                                end: end)
-                                                            .chain(CurveTween(
-                                                                curve: curve));
+                                                        const curve = Curves.easeInOut;
+                                                        var tween = Tween(begin: begin, end: end)
+                                                            .chain(CurveTween(curve: curve));
                                                         var offsetAnimation =
-                                                            animation
-                                                                .drive(tween);
+                                                            animation.drive(tween);
                                                         return SlideTransition(
-                                                            position:
-                                                                offsetAnimation,
+                                                            position: offsetAnimation,
                                                             child: child);
                                                       },
                                                     ),
                                                   );
                                                 },
-                                                child: Text(
-                                                    Intl.message("signup",
-                                                        name: "signup"),
+                                                child: Text(Intl.message("signup", name: "signup"),
                                                     style: GoogleFonts.roboto(
-                                                        color: Color.fromRGBO(
-                                                            69, 152, 209, 1),
-                                                        fontStyle:
-                                                            FontStyle.normal,
+                                                        color: Color.fromRGBO(69, 152, 209, 1),
+                                                        fontStyle: FontStyle.normal,
                                                         fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w600))),
+                                                        fontWeight: FontWeight.w600))),
                                             Text(Intl.message("or", name: "or"),
                                                 style: GoogleFonts.roboto(
-                                                    color: Color.fromRGBO(
-                                                        51, 51, 51, 1),
+                                                    color: Color.fromRGBO(51, 51, 51, 1),
                                                     fontStyle: FontStyle.normal,
                                                     fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
+                                                    fontWeight: FontWeight.w600)),
                                             TextButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    PageRouteBuilder(
-                                                      pageBuilder: (context,
-                                                              animation,
-                                                              secondaryAnimation) =>
-                                                          SignIn(),
-                                                      transitionsBuilder:
-                                                          (context,
-                                                              animation,
-                                                              secondaryAnimation,
-                                                              child) {
-                                                        const begin = Offset(
-                                                            1.0,
-                                                            0.0); // Slide from right
-                                                        const end = Offset.zero;
-                                                        const curve =
-                                                            Curves.easeInOut;
-                                                        var tween = Tween(
-                                                                begin: begin,
-                                                                end: end)
-                                                            .chain(CurveTween(
-                                                                curve: curve));
-                                                        var offsetAnimation =
-                                                            animation
-                                                                .drive(tween);
-                                                        return SlideTransition(
-                                                            position:
-                                                                offsetAnimation,
-                                                            child: child);
-                                                      },
-                                                    ),
-                                                  );
+                                                onPressed: () async {
+                                                  try {
+                                                    final facebookAppEvents = FacebookAppEvents();
+                                                    String appId = await facebookAppEvents
+                                                            .getApplicationId() ??
+                                                        "none";
+                                                    print("Camera $appId");
+                                                  } catch (e) {
+                                                    print("Error Signui ${e}");
+                                                  }
+                                                  // Navigator.push(
+                                                  //   context,
+                                                  //   PageRouteBuilder(
+                                                  //     pageBuilder: (context, animation,
+                                                  //             secondaryAnimation) =>
+                                                  //         SignIn(),
+                                                  //     transitionsBuilder: (context, animation,
+                                                  //         secondaryAnimation, child) {
+                                                  //       const begin =
+                                                  //           Offset(1.0, 0.0); // Slide from right
+                                                  //       const end = Offset.zero;
+                                                  //       const curve = Curves.easeInOut;
+                                                  //       var tween = Tween(begin: begin, end: end)
+                                                  //           .chain(CurveTween(curve: curve));
+                                                  //       var offsetAnimation =
+                                                  //           animation.drive(tween);
+                                                  //       return SlideTransition(
+                                                  //           position: offsetAnimation,
+                                                  //           child: child);
+                                                  //     },
+                                                  //   ),
+                                                  // );
                                                 },
-                                                child: Text(
-                                                    Intl.message("login",
-                                                        name: "login"),
+                                                child: Text(Intl.message("login", name: "login"),
                                                     style: GoogleFonts.roboto(
-                                                        color: Color.fromRGBO(
-                                                            69, 152, 209, 1),
-                                                        fontStyle:
-                                                            FontStyle.normal,
+                                                        color: Color.fromRGBO(69, 152, 209, 1),
+                                                        fontStyle: FontStyle.normal,
                                                         fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w600))),
+                                                        fontWeight: FontWeight.w600))),
                                           ],
                                         ),
                                       ],
@@ -1472,17 +1373,14 @@ class _HomePage extends State<HomePage> {
                                   if (userResponseEvents != null &&
                                       userResponseEvents!.data.isNotEmpty)
                                     Container(
-                                      height: _calculateListViewHeight(
-                                          userResponseEvents!.data.length),
+                                      height:
+                                          _calculateListViewHeight(userResponseEvents!.data.length),
                                       child: ListView.builder(
                                         padding: EdgeInsets.all(0),
                                         scrollDirection: Axis.vertical,
-                                        itemCount:
-                                            userResponseEvents!.data.length,
+                                        itemCount: userResponseEvents!.data.length,
                                         itemBuilder: (context, index) {
-                                          return MyEvents(
-                                              userResponseEvents!.data[index],
-                                              index,
+                                          return MyEvents(userResponseEvents!.data[index], index,
                                               handleMyEventDetailsCallback);
                                         },
                                         // reverse: true,
@@ -1493,8 +1391,7 @@ class _HomePage extends State<HomePage> {
                                   SizedBox(
                                     height: 40,
                                   ),
-                                if (userResponseEvents != null &&
-                                    userResponseEvents!.data.isEmpty)
+                                if (userResponseEvents != null && userResponseEvents!.data.isEmpty)
                                   SizedBox(
                                     height: 20,
                                   ),
@@ -1502,8 +1399,7 @@ class _HomePage extends State<HomePage> {
                                     userResponseEvents!.data.isEmpty &&
                                     isLoggedIn)
                                   Text(
-                                    Intl.message("msg_no_events",
-                                        name: "msg_no_events"),
+                                    Intl.message("msg_no_events", name: "msg_no_events"),
                                     style: GoogleFonts.roboto(
                                         color: Colors.black,
                                         fontStyle: FontStyle.normal,
@@ -1527,8 +1423,8 @@ class _HomePage extends State<HomePage> {
                             scrollDirection: Axis.vertical,
                             itemCount: contactItemList!.length,
                             itemBuilder: (context, index) {
-                              return MyContact(index, contactItemList![index],
-                                  handleMyContactDetails);
+                              return MyContact(
+                                  index, contactItemList![index], handleMyContactDetails);
                             },
                             // reverse: true,
                             physics: BouncingScrollPhysics(),
@@ -1559,8 +1455,7 @@ class _HomePage extends State<HomePage> {
                             Container(
                               height: 160,
                               width: double.infinity,
-                              margin:
-                                  new EdgeInsets.symmetric(horizontal: 20.0),
+                              margin: new EdgeInsets.symmetric(horizontal: 20.0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20.0),
@@ -1571,8 +1466,7 @@ class _HomePage extends State<HomePage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Text(
-                                        Intl.message("add_new_contacts",
-                                            name: "add_new_contacts"),
+                                        Intl.message("add_new_contacts", name: "add_new_contacts"),
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.roboto(
                                             fontSize: 20,
@@ -1584,8 +1478,7 @@ class _HomePage extends State<HomePage> {
                                         height: 20,
                                       ),
                                       Text(
-                                        Intl.message("header_scan",
-                                            name: "header_scan"),
+                                        Intl.message("header_scan", name: "header_scan"),
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.roboto(
                                             fontSize: 15,
@@ -1604,12 +1497,11 @@ class _HomePage extends State<HomePage> {
                                 child: TextButton(
                               style: TextButton.styleFrom(
                                 fixedSize: Size(230, 50),
-                                backgroundColor:
-                                    Color.fromRGBO(69, 152, 209, 1),
+                                backgroundColor: Color.fromRGBO(69, 152, 209, 1),
                                 // Set the background color to black
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      25.0), // Set the border radius
+                                  borderRadius:
+                                      BorderRadius.circular(25.0), // Set the border radius
                                 ),
                               ),
                               onPressed: () async {
@@ -1622,11 +1514,9 @@ class _HomePage extends State<HomePage> {
                           ],
                         ),
                       ),
-                    if (uiMode == Const.myContactsUI &&
-                        responseContactList == null)
+                    if (uiMode == Const.myContactsUI && responseContactList == null)
                       Expanded(flex: 1, child: Container()),
-                    if (uiMode == Const.scanUI)
-                      Expanded(flex: 4, child: _scanner()),
+                    if (uiMode == Const.scanUI) Expanded(flex: 4, child: _scanner()),
                     if (uiMode == Const.eBadgesUI)
                       if (responseEbadges != null && uiMode == Const.eBadgesUI)
                         if (responseEbadges != null &&
@@ -1640,9 +1530,7 @@ class _HomePage extends State<HomePage> {
                               itemCount: responseEbadges!.data.length,
                               itemBuilder: (context, index) {
                                 return Ebadge(
-                                    index,
-                                    responseEbadges!.data[index],
-                                    handleEBadgeDetails);
+                                    index, responseEbadges!.data[index], handleEBadgeDetails);
                               },
                               // reverse: true,
                               physics: BouncingScrollPhysics(),
@@ -1657,9 +1545,7 @@ class _HomePage extends State<HomePage> {
                           child: Column(
                             children: [
                               SizedBox(
-                                height:
-                                    (MediaQuery.of(context).size.height / 2) -
-                                        150,
+                                height: (MediaQuery.of(context).size.height / 2) - 150,
                               ),
                               Text(
                                 Intl.message("no_badges", name: "no_badges"),
@@ -1676,13 +1562,10 @@ class _HomePage extends State<HomePage> {
                     if (uiMode == Const.eBadgesUI && responseEbadges == null)
                       Expanded(flex: 1, child: Container()),
                     if (uiMode == Const.profileUI && _responseUser != null)
-                      Profile(
-                          'try', "", handleProfileCallbacks, _responseUser!),
+                      Profile('try', "", handleProfileCallbacks, _responseUser!),
                     if (uiMode == Const.profileUI && _responseUser == null)
                       Expanded(flex: 1, child: Container()),
-                    if (uiMode == Const.searchEventUI &&
-                        getEventsInit &&
-                        filteredEvents.isNotEmpty)
+                    if (uiMode == Const.searchEventUI && getEventsInit && filteredEvents.isNotEmpty)
                       Expanded(
                         flex: 1,
                         child: Container(
@@ -1691,8 +1574,8 @@ class _HomePage extends State<HomePage> {
                             scrollDirection: Axis.vertical,
                             itemCount: filteredEvents.length,
                             itemBuilder: (context, index) {
-                              return CurrentEvents(filteredEvents[index], index,
-                                  handleEventDetailsCallback);
+                              return CurrentEvents(
+                                  filteredEvents[index], index, handleEventDetailsCallback);
                             },
                             // reverse: true,
                             physics: BouncingScrollPhysics(),
@@ -1709,8 +1592,7 @@ class _HomePage extends State<HomePage> {
                           child: Padding(
                             padding: EdgeInsets.only(top: 30),
                             child: Text(
-                              Intl.message("msg_no_events_search",
-                                  name: "msg_no_events_search"),
+                              Intl.message("msg_no_events_search", name: "msg_no_events_search"),
                               style: GoogleFonts.roboto(
                                   color: Colors.black,
                                   fontStyle: FontStyle.normal,
@@ -1766,18 +1648,15 @@ class _HomePage extends State<HomePage> {
                                     scanResult = code!;
                                     try {
                                       vibrateOnce();
-                                      List<String> strResult =
-                                          scanResult.split("-");
+                                      List<String> strResult = scanResult.split("-");
                                       if (strResult.length > 1) {
                                         addUserToContact(strResult);
                                       } else {
-                                        Utils.showToast(Intl.message(
-                                            "msg_scan_correct_ebadge",
+                                        Utils.showToast(Intl.message("msg_scan_correct_ebadge",
                                             name: "msg_scan_correct_ebadge"));
                                       }
                                     } catch (e) {
-                                      Utils.showToast(Intl.message(
-                                          "msg_scan_correct_ebadge",
+                                      Utils.showToast(Intl.message("msg_scan_correct_ebadge",
                                           name: "msg_scan_correct_ebadge"));
                                     }
                                   }

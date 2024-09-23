@@ -1380,6 +1380,16 @@ class S {
     );
   }
 
+  /// `Continue with Facebook`
+  String get connect_with_meta {
+    return Intl.message(
+      'Continue with Facebook',
+      name: 'connect_with_meta',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Continue with Linkedin`
   String get connect_with_linkedin {
     return Intl.message(

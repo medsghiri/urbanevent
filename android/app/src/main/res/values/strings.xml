@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">urbavent</string>
+    <string name="facebook_app_id">380125431004775</string>
+    <string name="fb_login_protocol_scheme">fb0c8aefb8b435dd6c31fd5c441289c43d</string>
+    <string name="facebook_client_token">bcf18e8bcaba7992f532f25e85fab13d</string>
+</resources>

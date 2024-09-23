@@ -2,6 +2,7 @@ import 'package:com.urbaevent/firebase_options.dart';
 import 'package:com.urbaevent/utils/LanguageProvider.dart';
 import 'package:com.urbaevent/utils/ThemeColor.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,6 @@ import 'package:provider/provider.dart';
 
 import 'generated/intl/messages_all.dart';
 import 'utils/Preference.dart';
-
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -38,8 +38,7 @@ Future<void> setupFlutterNotifications() async {
   channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
-    description:
-    'This channel is used for important notifications.', // description
+    description: 'This channel is used for important notifications.', // description
     importance: Importance.high,
   );
 
@@ -50,8 +49,7 @@ Future<void> setupFlutterNotifications() async {
   /// We use this channel in the `AndroidManifest.xml` file to override the
   /// default FCM channel to enable heads up notifications.
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   /// Update the iOS foreground notification presentation options to allow
@@ -64,16 +62,15 @@ Future<void> setupFlutterNotifications() async {
   isFlutterLocalNotificationsInitialized = false;
 }
 
-
 /// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-
-
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   Preference preference = await Preference.getInstance();
   Intl.defaultLocale = preference.getLanguage();
   await initializeMessages(preference.getLanguage());
@@ -92,6 +89,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  
+
   @override
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
@@ -118,11 +117,11 @@ class MyApp extends StatelessWidget {
           selectionColor: ThemeColor.colorAccent,
           selectionHandleColor: ThemeColor.colorAccent,
         ),
-        progressIndicatorTheme: ProgressIndicatorThemeData(circularTrackColor: ThemeColor.colorAccent),
+        progressIndicatorTheme:
+            ProgressIndicatorThemeData(circularTrackColor: ThemeColor.colorAccent),
         cardTheme: CardTheme(
           surfaceTintColor: Colors.white,
-          shadowColor: Color.fromRGBO(
-            0, 0, 0, 0.2549019607843137),
+          shadowColor: Color.fromRGBO(0, 0, 0, 0.2549019607843137),
         ),
       ),
       home: IntroPage(),
@@ -150,8 +149,7 @@ class _IntroPageState extends State<IntroPage> {
         isInit = true;
       });
     } else {
-      if (preference.getAuthRole() != null &&
-          preference.getAuthRole()!.role!.id == 3) {
+      if (preference.getAuthRole() != null && preference.getAuthRole()!.role!.id == 3) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => AgentHomePage(Const.homeUI)),
@@ -174,8 +172,7 @@ class _IntroPageState extends State<IntroPage> {
     initialization();
   }
 
-  PageController controller =
-      PageController(viewportFraction: 0.8, initialPage: 0);
+  PageController controller = PageController(viewportFraction: 0.8, initialPage: 0);
   List<Widget> _list = <Widget>[
     Pages(
       title: Intl.message('welcome_msg1', name: 'welcome_msg1'),
@@ -237,12 +234,12 @@ class _IntroPageState extends State<IntroPage> {
                             dotsCount: _list.length,
                             position: _curr,
                             decorator: DotsDecorator(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0)),
+                              shape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                               size: const Size(18.0, 8.0),
                               activeSize: const Size(34.0, 8.0),
-                              activeShape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0)),
+                              activeShape:
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
                             ),
                           ),
                           SizedBox(
@@ -252,12 +249,11 @@ class _IntroPageState extends State<IntroPage> {
                               child: TextButton(
                                   style: TextButton.styleFrom(
                                     fixedSize: Size(135, 35),
-                                    backgroundColor:
-                                        Color.fromRGBO(235, 154, 68, 1),
+                                    backgroundColor: Color.fromRGBO(235, 154, 68, 1),
                                     // Set the background color to black
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          18.0), // Set the border radius
+                                      borderRadius:
+                                          BorderRadius.circular(18.0), // Set the border radius
                                     ),
                                   ),
                                   onPressed: () async {
@@ -266,8 +262,7 @@ class _IntroPageState extends State<IntroPage> {
                                         Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomePage(Const.homeUI)),
+                                              builder: (context) => HomePage(Const.homeUI)),
                                           (route) => false,
                                         );
                                       } else {
@@ -276,8 +271,7 @@ class _IntroPageState extends State<IntroPage> {
                                       controller.jumpToPage(_curr);
                                     });
                                   },
-                                  child: Text(
-                                      Intl.message('next', name: 'next'),
+                                  child: Text(Intl.message('next', name: 'next'),
                                       style: GoogleFonts.roboto(
                                           color: Colors.white,
                                           fontSize: 20,
@@ -309,58 +303,52 @@ class Pages extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20.0),
         ),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.roboto(
-                    fontSize: 30,
-                    decoration: TextDecoration.none,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.roboto(
-                    fontSize: 18,
-                    decoration: TextDecoration.none,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Center(
-                  child: TextButton(
-                      style: TextButton.styleFrom(
-                        fixedSize: Size(230, 50),
-                        backgroundColor: Color.fromRGBO(69, 152, 209, 1),
-                        // Set the background color to black
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              25.0), // Set the border radius
-                        ),
-                      ),
-                      onPressed: () async {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomePage(Const.homeUI)),
-                          (route) => false,
-                        );
-                      },
-                      child: Text(Intl.message('start', name: 'start'),
-                          style: GoogleFonts.roboto(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500)))),
-            ]),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.roboto(
+                fontSize: 30,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.bold,
+                color: Colors.black),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.roboto(
+                fontSize: 18,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w400,
+                color: Colors.black),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Center(
+              child: TextButton(
+                  style: TextButton.styleFrom(
+                    fixedSize: Size(230, 50),
+                    backgroundColor: Color.fromRGBO(69, 152, 209, 1),
+                    // Set the background color to black
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0), // Set the border radius
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage(Const.homeUI)),
+                      (route) => false,
+                    );
+                  },
+                  child: Text(Intl.message('start', name: 'start'),
+                      style: GoogleFonts.roboto(
+                          color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500)))),
+        ]),
       ),
     );
   }

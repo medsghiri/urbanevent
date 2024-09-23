@@ -10,6 +10,7 @@ import 'package:com.urbaevent/utils/ThemeColor.dart';
 import 'package:easy_linkedin_login/easy_linkedin_login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:com.urbaevent/dialogs/Progressbar.dart';
 import 'package:com.urbaevent/model/ResponseAuthRole.dart';
@@ -41,6 +42,7 @@ class _SignIn extends State<SignIn> {
   bool _isPasswordVisible = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FacebookAuth facebookAuth = FacebookAuth.instance;
 
   final config = LinkedInConfig(
     clientId: '78kcdmw2pij8wd',
@@ -65,8 +67,7 @@ class _SignIn extends State<SignIn> {
 
   Future<User?> _handleSignIn() async {
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount!.authentication;
 
@@ -75,12 +76,27 @@ class _SignIn extends State<SignIn> {
         idToken: googleSignInAuthentication.idToken,
       );
 
-      final UserCredential authResult =
-          await _auth.signInWithCredential(credential);
+      final UserCredential authResult = await _auth.signInWithCredential(credential);
       final User? user = authResult.user;
       return user;
     } catch (error) {
       print(error);
+      return null;
+    }
+  }
+
+  Future<User?> signInWithFacebook() async {
+    try {
+      final LoginResult loginResult = await facebookAuth.login();
+
+      final OAuthCredential facebookAuthCredential =
+          FacebookAuthProvider.credential(loginResult.accessToken!.token);
+
+      final UserCredential authResult = await _auth.signInWithCredential(facebookAuthCredential);
+      final User? user = authResult.user;
+      return user;
+    } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -118,10 +134,7 @@ class _SignIn extends State<SignIn> {
     final url = Uri.parse(Urls.baseURL + Urls.login);
     final response = await http.post(
       url,
-      body: {
-        'identifier': _emailController.value.text,
-        'password': _passwordController.value.text
-      },
+      body: {'identifier': _emailController.value.text, 'password': _passwordController.value.text},
     );
 
     final parsedJson = jsonDecode(response.body);
@@ -135,8 +148,7 @@ class _SignIn extends State<SignIn> {
       preference.saveLogin(responseLogin);
       getAuthRole();
     } else {
-      Utils.showToast(
-          Intl.message("msg_login_invalid", name: "msg_login_invalid"));
+      Utils.showToast(Intl.message("msg_login_invalid", name: "msg_login_invalid"));
     }
     setState(() {
       loader = false;
@@ -181,8 +193,7 @@ class _SignIn extends State<SignIn> {
             const begin = Offset(1.0, 0.0); // Slide from right
             const end = Offset.zero;
             const curve = Curves.easeInOut;
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
             return SlideTransition(position: offsetAnimation, child: child);
           },
@@ -194,8 +205,7 @@ class _SignIn extends State<SignIn> {
     });
   }
 
-  Future<void> socialSignInApple(
-      AuthorizationCredentialAppleID credential) async {
+  Future<void> socialSignInApple(AuthorizationCredentialAppleID credential) async {
     setState(() {
       loader = true;
     });
@@ -235,8 +245,7 @@ class _SignIn extends State<SignIn> {
             const begin = Offset(1.0, 0.0); // Slide from right
             const end = Offset.zero;
             const curve = Curves.easeInOut;
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
             return SlideTransition(position: offsetAnimation, child: child);
           },
@@ -294,8 +303,7 @@ class _SignIn extends State<SignIn> {
             const begin = Offset(1.0, 0.0); // Slide from right
             const end = Offset.zero;
             const curve = Curves.easeInOut;
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
             return SlideTransition(position: offsetAnimation, child: child);
           },
@@ -328,8 +336,7 @@ class _SignIn extends State<SignIn> {
       if (response.statusCode == HttpStatus.ok) {
         print('Response Auth' + response.body);
         preference.saveAuthRole(ResponseAuthRole.fromJson(parsedJson));
-        if (preference.getAuthRole() != null &&
-            preference.getAuthRole()!.role!.id == 1) {
+        if (preference.getAuthRole() != null && preference.getAuthRole()!.role!.id == 1) {
           if (preference.getLoginDetails()!.user.emailOTPConfirmed == true) {
             Navigator.pushAndRemoveUntil(
               context,
@@ -346,8 +353,7 @@ class _SignIn extends State<SignIn> {
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-                builder: (context) => AgentHomePage(Const.homeUI)),
+            MaterialPageRoute(builder: (context) => AgentHomePage(Const.homeUI)),
             (route) => false,
           );
         }
@@ -435,20 +441,17 @@ class _SignIn extends State<SignIn> {
                                     child: LinkedInCustomButton(
                                       config: config,
                                       destroySession: true,
-                                      onError: (error) =>
-                                          log('Error: ${error.message}'),
-                                      onGetAuthToken: (data) => log(
-                                          'Access token ${data.accessToken!}'),
+                                      onError: (error) => log('Error: ${error.message}'),
+                                      onGetAuthToken: (data) =>
+                                          log('Access token ${data.accessToken!}'),
                                       onGetUserProfile: setUser,
                                       child: Container(
                                         height: 52,
                                         width: 295,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(249, 249, 255, 1),
-                                          borderRadius:
-                                              BorderRadius.circular(50.0),
+                                          color: Color.fromRGBO(249, 249, 255, 1),
+                                          borderRadius: BorderRadius.circular(50.0),
                                         ),
                                         padding: EdgeInsets.all(10.0),
                                         child: Row(
@@ -461,15 +464,12 @@ class _SignIn extends State<SignIn> {
                                             ),
                                             SizedBox(width: 10.0),
                                             Text(
-                                              Intl.message(
-                                                  "connect_with_linkedin",
-                                                  name:
-                                                      "connect_with_linkedin"),
+                                              Intl.message("connect_with_linkedin",
+                                                  name: "connect_with_linkedin"),
                                               style: GoogleFonts.roboto(
                                                   fontSize: 20.0,
                                                   fontWeight: FontWeight.w400,
-                                                  color:
-                                                      ThemeColor.textPrimary),
+                                                  color: ThemeColor.textPrimary),
                                             ),
                                           ],
                                         ),
@@ -521,36 +521,75 @@ class _SignIn extends State<SignIn> {
                                     ),
                                   ),
                                 ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    User? user = await signInWithFacebook();
+                                    if (user != null) {
+                                      // Successfully signed in with Google
+
+                                      socialSignInGoogle(user);
+                                    } else {
+                                      // Sign-in failed
+                                      Utils.showToast("Sign In failed");
+                                    }
+                                    facebookAuth.logOut();
+                                  },
+                                  child: Container(
+                                    height: 52,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Color.fromRGBO(249, 249, 255, 1),
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.asset(
+                                          'assets/meta.png',
+                                          width: 22.0,
+                                          height: 22.0,
+                                        ),
+                                        SizedBox(width: 10.0),
+                                        Text(
+                                          Intl.message("connect_with_meta",
+                                              name: "connect_with_meta"),
+                                          style: GoogleFonts.roboto(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w400,
+                                              color: ThemeColor.textPrimary),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 SizedBox(height: 10),
                                 if (Platform.isIOS)
                                   SignInWithAppleButton(
                                     text: Intl.message("connect_with_apple",
                                         name: "connect_with_apple"),
                                     onPressed: () async {
-                                      final credential = await SignInWithApple
-                                          .getAppleIDCredential(
+                                      final credential = await SignInWithApple.getAppleIDCredential(
                                         scopes: [
                                           AppleIDAuthorizationScopes.email,
                                           AppleIDAuthorizationScopes.fullName,
                                         ],
                                       );
 
-                                      Preference preference =
-                                          await Preference.getInstance();
+                                      Preference preference = await Preference.getInstance();
 
                                       if (credential.email != null) {
-                                        preference.setAppleEmail(
-                                            credential.email ?? "");
+                                        preference.setAppleEmail(credential.email ?? "");
                                       }
                                       if (credential.givenName != null) {
                                         preference.setAppleName(
-                                            credential.givenName! +
-                                                " " +
-                                                credential.familyName!);
+                                            credential.givenName! + " " + credential.familyName!);
                                       }
                                       if (credential.userIdentifier != null) {
-                                        preference.setAppleUerId(
-                                            credential.userIdentifier!);
+                                        preference.setAppleUerId(credential.userIdentifier!);
                                       }
 
                                       socialSignInApple(credential);
@@ -564,27 +603,23 @@ class _SignIn extends State<SignIn> {
                                       SizedBox(width: 30),
                                       Expanded(
                                         child: Divider(
-                                          color:
-                                              Color.fromRGBO(132, 130, 130, 1),
+                                          color: Color.fromRGBO(132, 130, 130, 1),
                                           thickness: 1.0,
                                         ),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 16.0),
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
                                         child: Text(
                                           Intl.message("or", name: "or"),
                                           style: GoogleFonts.roboto(
                                               fontSize: 18.0,
                                               fontWeight: FontWeight.w400,
-                                              color: Color.fromRGBO(
-                                                  132, 130, 130, 1)),
+                                              color: Color.fromRGBO(132, 130, 130, 1)),
                                         ),
                                       ),
                                       Expanded(
                                         child: Divider(
-                                          color:
-                                              Color.fromRGBO(132, 130, 130, 1),
+                                          color: Color.fromRGBO(132, 130, 130, 1),
                                           thickness: 1.0,
                                         ),
                                       ),
@@ -605,27 +640,20 @@ class _SignIn extends State<SignIn> {
                                     maxLines: 1,
                                     keyboardType: TextInputType.emailAddress,
                                     decoration: InputDecoration(
-                                      labelText:
-                                          Intl.message("email", name: "email"),
+                                      labelText: Intl.message("email", name: "email"),
                                       border: OutlineInputBorder(
                                         borderSide: BorderSide.none,
-                                        borderRadius:
-                                            BorderRadius.circular(25.0),
+                                        borderRadius: BorderRadius.circular(25.0),
                                       ),
                                       contentPadding: EdgeInsets.zero,
-                                      fillColor:
-                                          Color.fromRGBO(249, 249, 255, 1),
+                                      fillColor: Color.fromRGBO(249, 249, 255, 1),
                                       filled: true,
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.never,
+                                      floatingLabelBehavior: FloatingLabelBehavior.never,
                                       prefixIconConstraints:
-                                          BoxConstraints.tightFor(
-                                              width: 55, height: 55),
+                                          BoxConstraints.tightFor(width: 55, height: 55),
                                       prefixIcon: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18.0),
-                                        child: SvgPicture.asset(
-                                            'assets/ic_email.svg'),
+                                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                        child: SvgPicture.asset('assets/ic_email.svg'),
                                       ),
                                     ),
                                   ),
@@ -643,26 +671,19 @@ class _SignIn extends State<SignIn> {
                                     obscureText: !_isPasswordVisible,
                                     decoration: InputDecoration(
                                       contentPadding: EdgeInsets.zero,
-                                      labelText: Intl.message("password",
-                                          name: "password"),
+                                      labelText: Intl.message("password", name: "password"),
                                       border: OutlineInputBorder(
                                         borderSide: BorderSide.none,
-                                        borderRadius:
-                                            BorderRadius.circular(25.0),
+                                        borderRadius: BorderRadius.circular(25.0),
                                       ),
                                       filled: true,
-                                      fillColor:
-                                          Color.fromRGBO(249, 249, 255, 1),
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.never,
+                                      fillColor: Color.fromRGBO(249, 249, 255, 1),
+                                      floatingLabelBehavior: FloatingLabelBehavior.never,
                                       prefixIcon: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 19),
-                                          child: SvgPicture.asset(
-                                              'assets/ic_password.svg')),
+                                          padding: EdgeInsets.symmetric(horizontal: 19),
+                                          child: SvgPicture.asset('assets/ic_password.svg')),
                                       prefixIconConstraints:
-                                          BoxConstraints.tightForFinite(
-                                              width: 55, height: 55),
+                                          BoxConstraints.tightForFinite(width: 55, height: 55),
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                           _isPasswordVisible
@@ -671,8 +692,7 @@ class _SignIn extends State<SignIn> {
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isPasswordVisible =
-                                                !_isPasswordVisible;
+                                            _isPasswordVisible = !_isPasswordVisible;
                                           });
                                         },
                                       ),
@@ -684,8 +704,7 @@ class _SignIn extends State<SignIn> {
                                     child: TextButton(
                                         style: TextButton.styleFrom(
                                           fixedSize: Size(290, 50),
-                                          backgroundColor:
-                                              Color.fromRGBO(69, 152, 209, 1),
+                                          backgroundColor: Color.fromRGBO(69, 152, 209, 1),
                                           // Set the background color to black
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -695,9 +714,7 @@ class _SignIn extends State<SignIn> {
                                         onPressed: () async {
                                           if (checkValidations()) signIn();
                                         },
-                                        child: Text(
-                                            Intl.message("sign_in",
-                                                name: "sign_in"),
+                                        child: Text(Intl.message("sign_in", name: "sign_in"),
                                             style: GoogleFonts.roboto(
                                                 color: Colors.white,
                                                 fontSize: 20,
@@ -708,16 +725,14 @@ class _SignIn extends State<SignIn> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ForgotPassword()),
+                                                builder: (context) => ForgotPassword()),
                                           );
                                         },
                                         child: Text(
                                             Intl.message("forgot_password",
                                                 name: "forgot_password"),
                                             style: GoogleFonts.roboto(
-                                                color: Color.fromRGBO(
-                                                    235, 154, 68, 1),
+                                                color: Color.fromRGBO(235, 154, 68, 1),
                                                 fontStyle: FontStyle.normal,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w400)))),
@@ -730,9 +745,7 @@ class _SignIn extends State<SignIn> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                        Intl.message("you_dont_have_account",
-                            name: "you_dont_have_account"),
+                    Text(Intl.message("you_dont_have_account", name: "you_dont_have_account"),
                         style: GoogleFonts.roboto(
                             color: Colors.black,
                             fontStyle: FontStyle.normal,
@@ -743,20 +756,15 @@ class _SignIn extends State<SignIn> {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      SignUp(),
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                const begin =
-                                    Offset(1.0, 0.0); // Slide from right
+                              pageBuilder: (context, animation, secondaryAnimation) => SignUp(),
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                const begin = Offset(1.0, 0.0); // Slide from right
                                 const end = Offset.zero;
                                 const curve = Curves.easeInOut;
-                                var tween = Tween(begin: begin, end: end)
-                                    .chain(CurveTween(curve: curve));
+                                var tween =
+                                    Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                                 var offsetAnimation = animation.drive(tween);
-                                return SlideTransition(
-                                    position: offsetAnimation, child: child);
+                                return SlideTransition(position: offsetAnimation, child: child);
                               },
                             ),
                           );
@@ -772,8 +780,7 @@ class _SignIn extends State<SignIn> {
               ],
             ),
           ),
-          CustomToolbar(Intl.message("sign_in", name: "sign_in"),
-              handleCallback, -1, false),
+          CustomToolbar(Intl.message("sign_in", name: "sign_in"), handleCallback, -1, false),
           if (loader) Progressbar(loader),
         ]),
       ),

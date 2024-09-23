@@ -12,13 +12,11 @@ class CurrentEvents extends StatefulWidget {
 
   CurrentEvents(this._datum, this.position, this.callback);
 
-
   @override
   State<CurrentEvents> createState() => _Events();
 }
 
 class _Events extends State<CurrentEvents> {
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -43,12 +41,15 @@ class _Events extends State<CurrentEvents> {
               fit: BoxFit.cover,
               height: 190,
               width: MediaQuery.of(context).size.width,
-              imageUrl:Urls.imageURL+ widget._datum.banner!.url,
+              imageUrl: Urls.imageURL + widget._datum.banner!.url,
               // Replace with your image URL
               placeholder: (context, url) => Container(
-                alignment: Alignment.center,
+                  alignment: Alignment.center,
                   height: 100,
-                  child: Center(child: CircularProgressIndicator(color: Colors.black.withOpacity(0.2),))),
+                  child: Center(
+                      child: CircularProgressIndicator(
+                    color: Colors.black.withOpacity(0.2),
+                  ))),
             ),
           ),
           Container(
@@ -122,7 +123,7 @@ class _Events extends State<CurrentEvents> {
                     ),
                     SizedBox(width: 10),
                     Container(
-                      width: 295,
+                      width: 280,
                       child: Text(
                         widget._datum.locationAddress,
                         maxLines: 1,

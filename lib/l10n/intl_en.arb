@@ -133,6 +133,7 @@
   "ebadge_type": "eBadge Type",
   "msg_email_sent_to": "A code will be sent to your mailbox to recover your password",
   "connect_with_google": "Continue with Google",
+  "connect_with_meta": "Continue with Facebook",
   "connect_with_linkedin": "Continue with Linkedin",
   "connect_with_apple":"Continue with Apple",
   "years_ago": " Years ago",
